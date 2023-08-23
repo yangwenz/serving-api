@@ -42,7 +42,8 @@ func (service *KServe) Predict(request InferRequest, version string) (*InferResp
 			return nil, fmt.Errorf("failed to build request: %s", err)
 		}
 		req.Header.Set("Content-Type", "application/json")
-		req.Host = fmt.Sprintf("%s.%s", modelName, service.customDomain)
+		req.Host = fmt.Sprintf("%s.%s.%s",
+			modelName, request.GetNamespace(), service.customDomain)
 
 		// Send the prediction request
 		client := http.Client{Timeout: time.Duration(service.timeout) * time.Second}
