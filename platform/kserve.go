@@ -45,12 +45,13 @@ func (service *KServe) Predict(request InferRequest, version string) (*InferResp
 		req.Host = fmt.Sprintf("%s.%s", modelName, service.customDomain)
 
 		// Send the prediction request
-		client := http.Client{
-			Timeout: time.Duration(service.timeout) * time.Second,
-		}
+		client := http.Client{Timeout: time.Duration(service.timeout) * time.Second}
 		res, err := client.Do(req)
 		if err != nil {
 			return nil, fmt.Errorf("falied to send request: %s", err)
+		}
+		if res.StatusCode != 200 {
+			return nil, fmt.Errorf("kserve service error")
 		}
 
 		// Parse the response
