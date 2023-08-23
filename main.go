@@ -19,7 +19,7 @@ func main() {
 	}
 
 	// Initialize ML platform service
-	service := platform.NewKServe(config.KServeAddress)
+	service := platform.NewKServe(config)
 	// Start model API server
 	runGinServer(config, service)
 }
