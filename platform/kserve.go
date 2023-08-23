@@ -3,6 +3,7 @@ package platform
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/yangwenz/model-serving/utils"
 	"io"
@@ -24,7 +25,10 @@ func NewKServe(config utils.Config) Platform {
 	}
 }
 
-func (service *KServe) Predict(request InferRequest, version string) (*InferResponse, error) {
+func (service *KServe) Predict(
+	request InferRequest,
+	version string,
+) (*InferResponse, *RequestError) {
 	modelName := request.GetModelName()
 	inputs := request.GetInputs()
 
@@ -32,14 +36,16 @@ func (service *KServe) Predict(request InferRequest, version string) (*InferResp
 		// Marshal the input data
 		data, err := json.Marshal(inputs)
 		if err != nil {
-			return nil, fmt.Errorf("failed to marshall request: %s", err)
+			return nil, NewRequestError(MarshalError,
+				errors.New("failed to marshal request"))
 		}
 
 		// Build a new prediction request
 		url := fmt.Sprintf("http://%s/v1/models/%s:predict", service.address, modelName)
 		req, err := http.NewRequest("POST", url, bytes.NewReader(data))
 		if err != nil {
-			return nil, fmt.Errorf("failed to build request: %s", err)
+			return nil, NewRequestError(BuildRequestError,
+				errors.New("failed to build request"))
 		}
 		req.Header.Set("Content-Type", "application/json")
 		req.Host = fmt.Sprintf("%s.%s.%s",
@@ -49,25 +55,30 @@ func (service *KServe) Predict(request InferRequest, version string) (*InferResp
 		client := http.Client{Timeout: time.Duration(service.timeout) * time.Second}
 		res, err := client.Do(req)
 		if err != nil {
-			return nil, fmt.Errorf("falied to send request: %s", err)
+			return nil, NewRequestError(SendRequestError,
+				errors.New("failed to send request, model not ready"))
 		}
 		if res.StatusCode != 200 {
-			return nil, fmt.Errorf("kserve service error")
+			return nil, NewRequestError(InvalidInputError,
+				errors.New("invalid model or inputs"))
 		}
 
 		// Parse the response
 		defer res.Body.Close()
 		body, err := io.ReadAll(res.Body)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read response body: %s", err)
+			return nil, NewRequestError(ReadResponseError,
+				errors.New("failed to read response body"))
 		}
 		var outputs map[string]interface{}
 		err = json.Unmarshal(body, &outputs)
 		if err != nil {
-			return nil, fmt.Errorf("failed to unmarshal response body: %s", err)
+			return nil, NewRequestError(UnmarshalResponseError,
+				errors.New("failed to unmarshal response body"))
 		}
 		response := InferResponse{Outputs: outputs}
 		return &response, nil
 	}
-	return nil, fmt.Errorf("unknown kserve predict version: %s", version)
+	return nil, NewRequestError(UnknownAPIVersion,
+		errors.New("prediction API version is not supported"))
 }

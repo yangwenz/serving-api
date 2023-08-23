@@ -12,5 +12,5 @@ type InferResponse struct {
 }
 
 type Platform interface {
-	Predict(request InferRequest, version string) (*InferResponse, error)
+	Predict(request InferRequest, version string) (*InferResponse, *RequestError)
 }
