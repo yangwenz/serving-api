@@ -16,6 +16,7 @@ func TestPredictV1(t *testing.T) {
 	testCases := []struct {
 		name          string
 		body          gin.H
+		buildStubs    func(platform *mockplatform.MockPlatform)
 		checkResponse func(recoder *httptest.ResponseRecorder)
 	}{
 		{
@@ -29,6 +30,12 @@ func TestPredictV1(t *testing.T) {
 						[]float32{6.0, 3.4, 4.5, 1.6},
 					},
 				},
+			},
+			buildStubs: func(platform *mockplatform.MockPlatform) {
+				platform.EXPECT().
+					Predict(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(nil, nil)
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
@@ -44,6 +51,8 @@ func TestPredictV1(t *testing.T) {
 			defer ctrl.Finish()
 
 			platform := mockplatform.NewMockPlatform(ctrl)
+			tc.buildStubs(platform)
+
 			server := newTestServer(t, platform)
 			recorder := httptest.NewRecorder()
 

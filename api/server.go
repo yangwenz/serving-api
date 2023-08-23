@@ -15,8 +15,9 @@ type Server struct {
 
 func NewServer(config utils.Config, platform platform.Platform) (*Server, error) {
 	server := Server{
-		config: config,
-		router: nil,
+		config:   config,
+		router:   nil,
+		platform: platform,
 	}
 	server.setupRouter()
 	return &server, nil
