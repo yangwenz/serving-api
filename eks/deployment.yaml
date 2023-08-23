@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: model-serving
+  labels:
+    app: model-serving
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: model-serving
+  template:
+    metadata:
+      labels:
+        app: model-serving
+    spec:
+      containers:
+        - name: model-serving-container
+          image: yangwenz/model-serving:latest
+          imagePullPolicy: Always
+          ports:
+            - name: service
+              containerPort: 8000
+          env:
+            - name: GIN_MODE
+              value: release
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: 8000
+            initialDelaySeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 5
