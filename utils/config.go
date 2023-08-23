@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Environment       string `mapstructure:"ENVIRONMENT"`
 	HTTPServerAddress string `mapstructure:"HTTP_SERVER_ADDRESS"`
+	KServeAddress     string `mapstructure:"KSERVE_ADDRESS"`
 }
 
 // LoadConfig reads configuration from file or environment variables.
