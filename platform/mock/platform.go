@@ -35,10 +35,10 @@ func (m *MockPlatform) EXPECT() *MockPlatformMockRecorder {
 }
 
 // Predict mocks base method.
-func (m *MockPlatform) Predict(arg0 platform.InferRequest, arg1 string) (platform.InferResponse, error) {
+func (m *MockPlatform) Predict(arg0 platform.InferRequest, arg1 string) (*platform.InferResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Predict", arg0, arg1)
-	ret0, _ := ret[0].(platform.InferResponse)
+	ret0, _ := ret[0].(*platform.InferResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

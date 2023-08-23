@@ -24,14 +24,6 @@ func (request *InferRequest) GetInputs() map[string]interface{} {
 	return request.Inputs
 }
 
-type InferResponse struct {
-	Outputs map[string]interface{} `json:"outputs"`
-}
-
-func (request *InferResponse) GetOutputs() map[string]interface{} {
-	return request.Outputs
-}
-
 func (server *Server) predictV1(ctx *gin.Context) {
 	var req InferRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
