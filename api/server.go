@@ -2,16 +2,18 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/yangwenz/model-serving/platform"
 	"github.com/yangwenz/model-serving/utils"
 	"net/http"
 )
 
 type Server struct {
-	config utils.Config
-	router *gin.Engine
+	config   utils.Config
+	router   *gin.Engine
+	platform platform.Platform
 }
 
-func NewServer(config utils.Config) (*Server, error) {
+func NewServer(config utils.Config, platform platform.Platform) (*Server, error) {
 	server := Server{
 		config: config,
 		router: nil,
@@ -25,6 +27,9 @@ func (server *Server) setupRouter() {
 
 	router.GET("/live", server.checkHealth)
 	router.GET("/ready", server.checkHealth)
+
+	v1Routes := router.Group("/v1")
+	v1Routes.POST("/predict", server.predictV1)
 
 	server.router = router
 }

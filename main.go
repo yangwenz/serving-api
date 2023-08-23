@@ -4,6 +4,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/yangwenz/model-serving/api"
+	"github.com/yangwenz/model-serving/platform"
 	"github.com/yangwenz/model-serving/utils"
 	"os"
 )
@@ -17,12 +18,14 @@ func main() {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
 
+	// Initialize ML platform service
+	service := platform.NewKServe(config.KServeAddress)
 	// Start model API server
-	runGinServer(config)
+	runGinServer(config, service)
 }
 
-func runGinServer(config utils.Config) {
-	server, err := api.NewServer(config)
+func runGinServer(config utils.Config, platform platform.Platform) {
+	server, err := api.NewServer(config, platform)
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot create server")
 	}
