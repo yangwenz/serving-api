@@ -7,10 +7,11 @@ import (
 // Config stores all configuration of the application.
 // The values are read by viper from a config file or environment variable.
 type Config struct {
-	Environment        string `mapstructure:"ENVIRONMENT"`
-	HTTPServerAddress  string `mapstructure:"HTTP_SERVER_ADDRESS"`
-	KServeAddress      string `mapstructure:"KSERVE_ADDRESS"`
-	KServeCustomDomain string `mapstructure:"KSERVE_CUSTOM_DOMAIN"`
+	Environment          string `mapstructure:"ENVIRONMENT"`
+	HTTPServerAddress    string `mapstructure:"HTTP_SERVER_ADDRESS"`
+	KServeAddress        string `mapstructure:"KSERVE_ADDRESS"`
+	KServeCustomDomain   string `mapstructure:"KSERVE_CUSTOM_DOMAIN"`
+	KServeRequestTimeout int    `mapstructure:"KSERVE_REQUEST_TIMEOUT"`
 }
 
 // LoadConfig reads configuration from file or environment variables.
