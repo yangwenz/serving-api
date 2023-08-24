@@ -11,6 +11,7 @@ type Config struct {
 	HTTPServerAddress    string `mapstructure:"HTTP_SERVER_ADDRESS"`
 	KServeAddress        string `mapstructure:"KSERVE_ADDRESS"`
 	KServeCustomDomain   string `mapstructure:"KSERVE_CUSTOM_DOMAIN"`
+	KServeNamespace      string `mapstructure:"KSERVE_NAMESPACE"`
 	KServeRequestTimeout int    `mapstructure:"KSERVE_REQUEST_TIMEOUT"`
 }
 

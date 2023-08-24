@@ -14,6 +14,7 @@ import (
 type KServe struct {
 	address      string
 	customDomain string
+	namespace    string
 	timeout      int
 }
 
@@ -21,19 +22,20 @@ func NewKServe(config utils.Config) Platform {
 	return &KServe{
 		address:      config.KServeAddress,
 		customDomain: config.KServeCustomDomain,
+		namespace:    config.KServeNamespace,
 		timeout:      config.KServeRequestTimeout,
 	}
 }
 
 func (service *KServe) Predict(request InferRequest, version string) (*InferResponse, *RequestError) {
 	if version == "v1" {
-		return service.predictV1(request, version)
+		return service.predictV1(request)
 	}
 	return nil, NewRequestError(UnknownAPIVersion,
 		errors.New("prediction API version is not supported"))
 }
 
-func (service *KServe) predictV1(request InferRequest, version string) (*InferResponse, *RequestError) {
+func (service *KServe) predictV1(request InferRequest) (*InferResponse, *RequestError) {
 	modelName := request.GetModelName()
 	inputs := request.GetInputs()
 
@@ -53,7 +55,7 @@ func (service *KServe) predictV1(request InferRequest, version string) (*InferRe
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Host = fmt.Sprintf("%s.%s.%s",
-		modelName, request.GetNamespace(), service.customDomain)
+		modelName, service.namespace, service.customDomain)
 
 	// Send the prediction request
 	client := http.Client{Timeout: time.Duration(service.timeout) * time.Second}
