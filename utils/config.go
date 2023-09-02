@@ -13,6 +13,7 @@ type Config struct {
 	KServeCustomDomain   string `mapstructure:"KSERVE_CUSTOM_DOMAIN"`
 	KServeNamespace      string `mapstructure:"KSERVE_NAMESPACE"`
 	KServeRequestTimeout int    `mapstructure:"KSERVE_REQUEST_TIMEOUT"`
+	RedisAddress         string `mapstructure:"REDIS_ADDRESS"`
 }
 
 // LoadConfig reads configuration from file or environment variables.

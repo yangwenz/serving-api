@@ -1,9 +1,9 @@
 package platform
 
-type InferRequest interface {
-	GetModelName() string
-	GetModelVersion() string
-	GetInputs() map[string]interface{}
+type InferRequest struct {
+	ModelName    string                 `json:"model_name" binding:"required"`
+	ModelVersion string                 `json:"model_version"`
+	Inputs       map[string]interface{} `json:"inputs" binding:"required"`
 }
 
 type InferResponse struct {
@@ -11,5 +11,5 @@ type InferResponse struct {
 }
 
 type Platform interface {
-	Predict(request InferRequest, version string) (*InferResponse, *RequestError)
+	Predict(request *InferRequest, version string) (*InferResponse, *RequestError)
 }

@@ -27,7 +27,7 @@ func NewKServe(config utils.Config) Platform {
 	}
 }
 
-func (service *KServe) Predict(request InferRequest, version string) (*InferResponse, *RequestError) {
+func (service *KServe) Predict(request *InferRequest, version string) (*InferResponse, *RequestError) {
 	if version == "v1" {
 		return service.predictV1(request)
 	}
@@ -35,9 +35,9 @@ func (service *KServe) Predict(request InferRequest, version string) (*InferResp
 		errors.New("prediction API version is not supported"))
 }
 
-func (service *KServe) predictV1(request InferRequest) (*InferResponse, *RequestError) {
-	modelName := request.GetModelName()
-	inputs := request.GetInputs()
+func (service *KServe) predictV1(request *InferRequest) (*InferResponse, *RequestError) {
+	modelName := request.ModelName
+	inputs := request.Inputs
 
 	// Marshal the input data
 	data, err := json.Marshal(inputs)

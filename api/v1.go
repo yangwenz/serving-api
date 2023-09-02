@@ -6,26 +6,8 @@ import (
 	"net/http"
 )
 
-type InferRequest struct {
-	ModelName    string                 `json:"model_name" binding:"required"`
-	ModelVersion string                 `json:"model_version"`
-	Inputs       map[string]interface{} `json:"inputs" binding:"required"`
-}
-
-func (request *InferRequest) GetModelName() string {
-	return request.ModelName
-}
-
-func (request *InferRequest) GetModelVersion() string {
-	return request.ModelVersion
-}
-
-func (request *InferRequest) GetInputs() map[string]interface{} {
-	return request.Inputs
-}
-
 func (server *Server) predictV1(ctx *gin.Context) {
-	var req InferRequest
+	var req platform.InferRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
