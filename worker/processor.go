@@ -30,6 +30,7 @@ func NewRedisTaskProcessor(config utils.Config, platform platform.Platform) *Red
 	server := asynq.NewServer(
 		redisOpt,
 		asynq.Config{
+			Concurrency: config.WorkerConcurrency,
 			Queues: map[string]int{
 				QueueCritical: 10,
 				QueueDefault:  5,

@@ -2,7 +2,9 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/hibiken/asynq"
 	"github.com/yangwenz/model-serving/platform"
+	"github.com/yangwenz/model-serving/worker"
 	"net/http"
 )
 
@@ -29,4 +31,28 @@ func (server *Server) predictV1(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, response)
+}
+
+func (server *Server) asyncPredictV1(ctx *gin.Context) {
+	var req platform.InferRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	opts := []asynq.Option{
+		asynq.MaxRetry(5),
+		asynq.Queue(worker.QueueCritical),
+	}
+	payload := &worker.PayloadRunPrediction{
+		InferRequest: req,
+		APIVersion:   "v1",
+	}
+	err := server.distributor.DistributeTaskRunPrediction(ctx, payload, opts...)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	// TODO: 1. Add a task status record, 2. Send task information
+	ctx.JSON(http.StatusOK, gin.H{"message": "OK"})
 }

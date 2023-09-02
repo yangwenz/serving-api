@@ -23,12 +23,14 @@ func main() {
 	service := platform.NewKServe(config)
 	// Start task processor
 	go runTaskProcessor(config, service)
+	// Run task distributor
+	distributor := worker.NewRedisTaskDistributor(config)
 	// Start model API server
-	runGinServer(config, service)
+	runGinServer(config, service, distributor)
 }
 
-func runGinServer(config utils.Config, platform platform.Platform) {
-	server, err := api.NewServer(config, platform)
+func runGinServer(config utils.Config, platform platform.Platform, distributor worker.TaskDistributor) {
+	server, err := api.NewServer(config, platform, distributor)
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot create server")
 	}

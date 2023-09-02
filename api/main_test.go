@@ -5,13 +5,14 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/yangwenz/model-serving/platform"
 	"github.com/yangwenz/model-serving/utils"
+	"github.com/yangwenz/model-serving/worker"
 	"os"
 	"testing"
 )
 
-func newTestServer(t *testing.T, platform platform.Platform) *Server {
+func newTestServer(t *testing.T, platform platform.Platform, distributor worker.TaskDistributor) *Server {
 	config := utils.Config{}
-	server, err := NewServer(config, platform)
+	server, err := NewServer(config, platform, distributor)
 	require.NoError(t, err)
 	return server
 }
