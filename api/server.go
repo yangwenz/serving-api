@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/yangwenz/model-serving/platform"
 	"github.com/yangwenz/model-serving/utils"
@@ -38,6 +39,9 @@ func (server *Server) setupRouter() {
 	asyncV1Routes := router.Group("/async/v1")
 	asyncV1Routes.POST("/predict", server.asyncPredictV1)
 
+	taskRoutes := router.Group("/task")
+	taskRoutes.GET("/:id", server.getTask)
+
 	server.router = router
 }
 
@@ -48,6 +52,11 @@ func (server *Server) Start(address string) error {
 
 func (server *Server) checkHealth(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "API OK"})
+}
+
+func (server *Server) getTask(ctx *gin.Context) {
+	ctx.Redirect(http.StatusMovedPermanently,
+		fmt.Sprintf("http://%s%s", server.config.WebhookServerAddress, ctx.Request.RequestURI))
 }
 
 func errorResponse(err error) gin.H {

@@ -15,6 +15,7 @@ type Config struct {
 	KServeRequestTimeout int    `mapstructure:"KSERVE_REQUEST_TIMEOUT"`
 	RedisAddress         string `mapstructure:"REDIS_ADDRESS"`
 	WorkerConcurrency    int    `mapstructure:"WORKER_CONCURRENCY"`
+	WebhookServerAddress string `mapstructure:"WEBHOOK_SERVER_ADDRESS"`
 }
 
 // LoadConfig reads configuration from file or environment variables.
