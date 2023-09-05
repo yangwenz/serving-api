@@ -18,9 +18,10 @@ type RedisTaskProcessor struct {
 	config   utils.Config
 	server   *asynq.Server
 	platform platform.Platform
+	webhook  platform.Webhook
 }
 
-func NewRedisTaskProcessor(config utils.Config, platform platform.Platform) *RedisTaskProcessor {
+func NewRedisTaskProcessor(config utils.Config, platform platform.Platform, webhook platform.Webhook) *RedisTaskProcessor {
 	redisOpt := asynq.RedisClientOpt{
 		Addr: config.RedisAddress,
 	}
@@ -47,6 +48,7 @@ func NewRedisTaskProcessor(config utils.Config, platform platform.Platform) *Red
 		config:   config,
 		server:   server,
 		platform: platform,
+		webhook:  webhook,
 	}
 }
 

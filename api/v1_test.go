@@ -96,7 +96,7 @@ func TestAsyncPredictV1(t *testing.T) {
 					DistributeTaskRunPrediction(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(nil)
-				webhook.EXPECT().CreateNewTask(gomock.Eq("test_model"), gomock.Eq("v1")).
+				webhook.EXPECT().CreateNewTask(gomock.Any(), gomock.Eq("test_model"), gomock.Eq("v1")).
 					Times(1).
 					Return("success", nil)
 			},

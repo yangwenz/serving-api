@@ -17,10 +17,10 @@ type InternalWebhook struct {
 }
 
 type TaskInfo struct {
-	ID      string      `json:"id"`
-	Status  string      `json:"status"`
-	Runtime string      `json:"runtime"`
-	Outputs interface{} `json:"outputs"`
+	ID          string      `json:"id"`
+	Status      string      `json:"status"`
+	RunningTime string      `json:"running_time"`
+	Outputs     interface{} `json:"outputs"`
 }
 
 func NewInternalWebhook(config utils.Config) Webhook {
@@ -31,8 +31,9 @@ func NewInternalWebhook(config utils.Config) Webhook {
 	return &webhook
 }
 
-func (webhook *InternalWebhook) CreateNewTask(modelName string, modelVersion string) (string, error) {
+func (webhook *InternalWebhook) CreateNewTask(taskID string, modelName string, modelVersion string) (string, error) {
 	info := map[string]string{
+		"id":            taskID,
 		"model_name":    modelName,
 		"model_version": modelVersion,
 	}
@@ -59,7 +60,7 @@ func (webhook *InternalWebhook) CreateNewTask(modelName string, modelVersion str
 	return string(body), nil
 }
 
-func (webhook *InternalWebhook) UpdateTaskInfo(info *TaskInfo) error {
+func (webhook *InternalWebhook) UpdateTaskInfo(info TaskInfo) error {
 	data, err := json.Marshal(info)
 	if err != nil {
 		return errors.New("failed to marshal task info")

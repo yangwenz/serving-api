@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
 	"github.com/yangwenz/model-serving/platform"
 	"github.com/yangwenz/model-serving/worker"
@@ -40,12 +41,14 @@ func (server *Server) asyncPredictV1(ctx *gin.Context) {
 		return
 	}
 
+	id := uuid.New().String()
 	opts := []asynq.Option{
 		asynq.MaxRetry(5),
 		asynq.Queue(worker.QueueCritical),
 	}
 	payload := &worker.PayloadRunPrediction{
 		InferRequest: req,
+		ID:           id,
 		APIVersion:   "v1",
 	}
 	// Submit a new prediction task
@@ -55,7 +58,7 @@ func (server *Server) asyncPredictV1(ctx *gin.Context) {
 		return
 	}
 	// Add a prediction task record
-	res, err := server.webhook.CreateNewTask(req.ModelName, req.ModelVersion)
+	res, err := server.webhook.CreateNewTask(id, req.ModelName, req.ModelVersion)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 	}

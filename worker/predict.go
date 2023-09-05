@@ -13,6 +13,7 @@ const TaskRunPrediction = "task:run_prediction"
 
 type PayloadRunPrediction struct {
 	platform.InferRequest
+	ID         string `json:"id"`
 	APIVersion string `json:"api_version" default:"v1"`
 }
 
@@ -46,16 +47,31 @@ func (processor *RedisTaskProcessor) ProcessTaskRunPrediction(
 		return fmt.Errorf("failed to unmarshal payload: %w", asynq.SkipRetry)
 	}
 
+	info := platform.TaskInfo{ID: payload.ID}
 	response, err := processor.platform.Predict(&payload.InferRequest, payload.APIVersion)
 	if err != nil {
+		info.Status = "failed"
+		err := processor.webhook.UpdateTaskInfo(info)
+		if err != nil {
+			return fmt.Errorf("failed to update task %s: %w", payload.ID, err)
+		}
 		return fmt.Errorf("failed to run prediction: %w", err)
 	}
 
-	// TODO: Add WebHook and UploadHook
 	output, e := json.Marshal(response)
 	if e != nil {
+		info.Status = "failed"
+		err := processor.webhook.UpdateTaskInfo(info)
+		if err != nil {
+			return fmt.Errorf("failed to update task %s: %w", payload.ID, err)
+		}
 		return fmt.Errorf("failed to marshal output: %w", err)
 	}
-	log.Info().Msg(string(output))
+	// TODO: Update running time
+	info.Status = "succeeded"
+	info.Outputs = output
+	if err := processor.webhook.UpdateTaskInfo(info); err != nil {
+		return fmt.Errorf("failed to update task %s: %w", payload.ID, err)
+	}
 	return nil
 }

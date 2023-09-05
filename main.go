@@ -23,7 +23,7 @@ func main() {
 	service := platform.NewKServe(config)
 	webhook := platform.NewInternalWebhook(config)
 	// Start task processor
-	go runTaskProcessor(config, service)
+	go runTaskProcessor(config, service, webhook)
 	// Run task distributor
 	distributor := worker.NewRedisTaskDistributor(config)
 	// Start model API server
@@ -46,11 +46,11 @@ func runGinServer(
 	}
 }
 
-func runTaskProcessor(config utils.Config, platform platform.Platform) {
+func runTaskProcessor(config utils.Config, platform platform.Platform, webhook platform.Webhook) {
 	if config.RedisAddress == "" {
 		log.Fatal().Msg("redis address is not set")
 	}
-	taskProcessor := worker.NewRedisTaskProcessor(config, platform)
+	taskProcessor := worker.NewRedisTaskProcessor(config, platform, webhook)
 	log.Info().Msg("start task processor")
 	err := taskProcessor.Start()
 	if err != nil {
