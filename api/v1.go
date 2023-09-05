@@ -48,11 +48,16 @@ func (server *Server) asyncPredictV1(ctx *gin.Context) {
 		InferRequest: req,
 		APIVersion:   "v1",
 	}
+	// Submit a new prediction task
 	err := server.distributor.DistributeTaskRunPrediction(ctx, payload, opts...)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	// TODO: 1. Add a task status record, 2. Send task information
-	ctx.JSON(http.StatusOK, gin.H{"message": "OK"})
+	// Add a prediction task record
+	res, err := server.webhook.CreateNewTask(req.ModelName, req.ModelVersion)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+	ctx.JSON(http.StatusOK, gin.H{"message": res})
 }

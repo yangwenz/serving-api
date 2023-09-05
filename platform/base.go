@@ -13,3 +13,8 @@ type InferResponse struct {
 type Platform interface {
 	Predict(request *InferRequest, version string) (*InferResponse, *RequestError)
 }
+
+type Webhook interface {
+	CreateNewTask(modelName string, modelVersion string) (string, error)
+	UpdateTaskInfo(info *TaskInfo) error
+}

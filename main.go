@@ -21,16 +21,22 @@ func main() {
 
 	// Initialize ML platform service
 	service := platform.NewKServe(config)
+	webhook := platform.NewInternalWebhook(config)
 	// Start task processor
 	go runTaskProcessor(config, service)
 	// Run task distributor
 	distributor := worker.NewRedisTaskDistributor(config)
 	// Start model API server
-	runGinServer(config, service, distributor)
+	runGinServer(config, service, distributor, webhook)
 }
 
-func runGinServer(config utils.Config, platform platform.Platform, distributor worker.TaskDistributor) {
-	server, err := api.NewServer(config, platform, distributor)
+func runGinServer(
+	config utils.Config,
+	platform platform.Platform,
+	distributor worker.TaskDistributor,
+	webhook platform.Webhook,
+) {
+	server, err := api.NewServer(config, platform, distributor, webhook)
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot create server")
 	}

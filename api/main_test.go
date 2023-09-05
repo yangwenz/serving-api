@@ -10,9 +10,14 @@ import (
 	"testing"
 )
 
-func newTestServer(t *testing.T, platform platform.Platform, distributor worker.TaskDistributor) *Server {
+func newTestServer(
+	t *testing.T,
+	platform platform.Platform,
+	distributor worker.TaskDistributor,
+	webhook platform.Webhook,
+) *Server {
 	config := utils.Config{}
-	server, err := NewServer(config, platform, distributor)
+	server, err := NewServer(config, platform, distributor, webhook)
 	require.NoError(t, err)
 	return server
 }

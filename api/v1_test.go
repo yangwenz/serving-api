@@ -52,10 +52,11 @@ func TestPredictV1(t *testing.T) {
 			defer ctrl.Finish()
 
 			platform := mockplatform.NewMockPlatform(ctrl)
-			tc.buildStubs(platform)
 			distributor := mockwk.NewMockTaskDistributor(ctrl)
+			webhook := mockplatform.NewMockWebhook(ctrl)
+			tc.buildStubs(platform)
 
-			server := newTestServer(t, platform, distributor)
+			server := newTestServer(t, platform, distributor, webhook)
 			recorder := httptest.NewRecorder()
 
 			data, err := json.Marshal(tc.body)
@@ -75,7 +76,7 @@ func TestAsyncPredictV1(t *testing.T) {
 	testCases := []struct {
 		name          string
 		body          gin.H
-		buildStubs    func(distributor *mockwk.MockTaskDistributor)
+		buildStubs    func(distributor *mockwk.MockTaskDistributor, webhook *mockplatform.MockWebhook)
 		checkResponse func(recoder *httptest.ResponseRecorder)
 	}{
 		{
@@ -90,11 +91,14 @@ func TestAsyncPredictV1(t *testing.T) {
 					},
 				},
 			},
-			buildStubs: func(distributor *mockwk.MockTaskDistributor) {
+			buildStubs: func(distributor *mockwk.MockTaskDistributor, webhook *mockplatform.MockWebhook) {
 				distributor.EXPECT().
 					DistributeTaskRunPrediction(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(nil)
+				webhook.EXPECT().CreateNewTask(gomock.Eq("test_model"), gomock.Eq("v1")).
+					Times(1).
+					Return("success", nil)
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
@@ -111,9 +115,10 @@ func TestAsyncPredictV1(t *testing.T) {
 
 			platform := mockplatform.NewMockPlatform(ctrl)
 			distributor := mockwk.NewMockTaskDistributor(ctrl)
-			tc.buildStubs(distributor)
+			webhook := mockplatform.NewMockWebhook(ctrl)
+			tc.buildStubs(distributor, webhook)
 
-			server := newTestServer(t, platform, distributor)
+			server := newTestServer(t, platform, distributor, webhook)
 			recorder := httptest.NewRecorder()
 
 			data, err := json.Marshal(tc.body)

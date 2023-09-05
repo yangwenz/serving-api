@@ -14,14 +14,21 @@ type Server struct {
 	router      *gin.Engine
 	platform    platform.Platform
 	distributor worker.TaskDistributor
+	webhook     platform.Webhook
 }
 
-func NewServer(config utils.Config, platform platform.Platform, distributor worker.TaskDistributor) (*Server, error) {
+func NewServer(
+	config utils.Config,
+	platform platform.Platform,
+	distributor worker.TaskDistributor,
+	webhook platform.Webhook,
+) (*Server, error) {
 	server := Server{
 		config:      config,
 		router:      nil,
 		platform:    platform,
 		distributor: distributor,
+		webhook:     webhook,
 	}
 	server.setupRouter()
 	return &server, nil
