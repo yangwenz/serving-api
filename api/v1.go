@@ -42,6 +42,9 @@ func (server *Server) asyncPredictV1(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+	// Append uploading webhook
+	uploadURL := fmt.Sprintf("http://%s//upload", server.config.WebhookServerAddress)
+	req.Inputs["upload_webhook"] = uploadURL
 
 	id := uuid.New().String()
 	opts := []asynq.Option{
