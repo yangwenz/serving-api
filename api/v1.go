@@ -1,6 +1,8 @@
 package api
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
@@ -58,9 +60,16 @@ func (server *Server) asyncPredictV1(ctx *gin.Context) {
 		return
 	}
 	// Add a prediction task record
+	output := map[string]string{}
 	res, err := server.webhook.CreateNewTask(id, req.ModelName, req.ModelVersion)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": res})
+	if err := json.Unmarshal([]byte(res), &output); err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	// TODO: Change the url domain to the production domain
+	url := fmt.Sprintf("http://localhost:8000/task/%s", output["id"])
+	ctx.JSON(http.StatusOK, gin.H{"url": url})
 }

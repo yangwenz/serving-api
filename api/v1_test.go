@@ -98,7 +98,7 @@ func TestAsyncPredictV1(t *testing.T) {
 					Return(nil)
 				webhook.EXPECT().CreateNewTask(gomock.Any(), gomock.Eq("test_model"), gomock.Eq("v1")).
 					Times(1).
-					Return("success", nil)
+					Return("{\"id\": \"test-id\"}", nil)
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
