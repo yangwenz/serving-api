@@ -1,11 +1,13 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/yangwenz/model-serving/platform"
 	"github.com/yangwenz/model-serving/utils"
 	"github.com/yangwenz/model-serving/worker"
+	"io"
 	"net/http"
 )
 
@@ -62,18 +64,30 @@ func (server *Server) checkHealth(ctx *gin.Context) {
 }
 
 func (server *Server) getTask(ctx *gin.Context) {
-	ctx.Redirect(http.StatusFound,
-		fmt.Sprintf("http://%s%s", server.config.WebhookServerAddress, ctx.Request.RequestURI))
 	/*
-		url := fmt.Sprintf("http://%s%s", server.config.WebhookServerAddress, ctx.Request.RequestURI)
-		res, err := http.Get(url)
-		if err != nil || res.StatusCode != 200 {
-			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-			return
-		}
-		fmt.Println(res)
-		ctx.JSON(http.StatusOK, nil)
+		ctx.Redirect(http.StatusFound,
+			fmt.Sprintf("http://%s%s", server.config.WebhookServerAddress, ctx.Request.RequestURI))
 	*/
+	url := fmt.Sprintf("http://%s%s", server.config.WebhookServerAddress, ctx.Request.RequestURI)
+	res, err := http.Get(url)
+	if err != nil || res.StatusCode != 200 {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	var outputs interface{}
+	err = json.Unmarshal(body, &outputs)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, outputs)
 }
 
 func errorResponse(err error) gin.H {
