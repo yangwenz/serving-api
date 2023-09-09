@@ -24,13 +24,19 @@ spec:
           env:
             - name: GIN_MODE
               value: release
+            - name: REDIS_ADDRESS
+              value: "redis-master:6379"
+            - name: WEBHOOK_SERVER_ADDRESS
+              value: "model-webhook-service.default.svc.cluster.local:12000"
           livenessProbe:
             httpGet:
               path: /live
               port: 8000
             initialDelaySeconds: 5
+            periodSeconds: 20
           readinessProbe:
             httpGet:
               path: /ready
               port: 8000
             initialDelaySeconds: 5
+            periodSeconds: 20
