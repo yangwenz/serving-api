@@ -25,7 +25,7 @@ spec:
             - name: GIN_MODE
               value: release
             - name: KSERVE_ADDRESS
-              value: "istio-ingressgateway-internal.istio-system.svc.cluster.local:8080"
+              value: "istio-ingressgateway-internal.istio-system.svc.cluster.local"
             - name: REDIS_ADDRESS
               value: "redis-master:6379"
             - name: WEBHOOK_SERVER_ADDRESS
