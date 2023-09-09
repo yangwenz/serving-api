@@ -62,8 +62,18 @@ func (server *Server) checkHealth(ctx *gin.Context) {
 }
 
 func (server *Server) getTask(ctx *gin.Context) {
-	ctx.Redirect(http.StatusMovedPermanently,
+	ctx.Redirect(http.StatusFound,
 		fmt.Sprintf("http://%s%s", server.config.WebhookServerAddress, ctx.Request.RequestURI))
+	/*
+		url := fmt.Sprintf("http://%s%s", server.config.WebhookServerAddress, ctx.Request.RequestURI)
+		res, err := http.Get(url)
+		if err != nil || res.StatusCode != 200 {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+		fmt.Println(res)
+		ctx.JSON(http.StatusOK, nil)
+	*/
 }
 
 func errorResponse(err error) gin.H {
