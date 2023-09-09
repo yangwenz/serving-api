@@ -1,1 +1,1 @@
-# model-serving
+# serving-api
