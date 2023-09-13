@@ -58,9 +58,12 @@ func (processor *RedisTaskProcessor) ProcessTaskRunPrediction(
 		return fmt.Errorf("failed to run prediction: %w", err)
 	}
 
-	// TODO: Update running time
 	info.Status = "succeeded"
 	info.Outputs = response.Outputs
+	runningTime, ok := response.Outputs["running_time"]
+	if ok {
+		info.RunningTime = fmt.Sprintf("%v", runningTime)
+	}
 	if err := processor.webhook.UpdateTaskInfo(info); err != nil {
 		return fmt.Errorf("failed to update task %s: %w", payload.ID, err)
 	}
