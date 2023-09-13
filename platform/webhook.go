@@ -46,6 +46,7 @@ func (webhook *InternalWebhook) CreateNewTask(taskID string, modelName string, m
 		return "", errors.New("failed to build request")
 	}
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("apikey", webhook.config.WebhookAPIKey)
 
 	client := http.Client{Timeout: 10 * time.Second}
 	res, err := client.Do(req)
@@ -70,6 +71,7 @@ func (webhook *InternalWebhook) UpdateTaskInfo(info TaskInfo) error {
 		return errors.New("failed to build request")
 	}
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("apikey", webhook.config.WebhookAPIKey)
 
 	client := http.Client{Timeout: 10 * time.Second}
 	res, err := client.Do(req)
@@ -77,4 +79,31 @@ func (webhook *InternalWebhook) UpdateTaskInfo(info TaskInfo) error {
 		return errors.New("failed to update task info")
 	}
 	return nil
+}
+
+func (webhook *InternalWebhook) GetTaskInfo(taskID string) (interface{}, error) {
+	url := fmt.Sprintf("%s/%s", webhook.url, taskID)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, errors.New("failed to build request")
+	}
+	req.Header.Set("apikey", webhook.config.WebhookAPIKey)
+
+	client := http.Client{Timeout: 10 * time.Second}
+	res, err := client.Do(req)
+	if err != nil || res.StatusCode != 200 {
+		return nil, errors.New("failed to get task info")
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+	var outputs interface{}
+	err = json.Unmarshal(body, &outputs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal data: %w", err)
+	}
+	return outputs, nil
 }

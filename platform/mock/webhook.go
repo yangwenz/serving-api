@@ -49,6 +49,21 @@ func (mr *MockWebhookMockRecorder) CreateNewTask(arg0, arg1, arg2 interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNewTask", reflect.TypeOf((*MockWebhook)(nil).CreateNewTask), arg0, arg1, arg2)
 }
 
+// GetTaskInfo mocks base method.
+func (m *MockWebhook) GetTaskInfo(arg0 string) (interface{}, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTaskInfo", arg0)
+	ret0, _ := ret[0].(interface{})
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetTaskInfo indicates an expected call of GetTaskInfo.
+func (mr *MockWebhookMockRecorder) GetTaskInfo(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTaskInfo", reflect.TypeOf((*MockWebhook)(nil).GetTaskInfo), arg0)
+}
+
 // UpdateTaskInfo mocks base method.
 func (m *MockWebhook) UpdateTaskInfo(arg0 platform.TaskInfo) error {
 	m.ctrl.T.Helper()

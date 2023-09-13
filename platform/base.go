@@ -17,4 +17,5 @@ type Platform interface {
 type Webhook interface {
 	CreateNewTask(taskID string, modelName string, modelVersion string) (string, error)
 	UpdateTaskInfo(info TaskInfo) error
+	GetTaskInfo(taskID string) (interface{}, error)
 }

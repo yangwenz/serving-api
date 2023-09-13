@@ -16,6 +16,7 @@ type Config struct {
 	RedisAddress         string `mapstructure:"REDIS_ADDRESS"`
 	WorkerConcurrency    int    `mapstructure:"WORKER_CONCURRENCY"`
 	WebhookServerAddress string `mapstructure:"WEBHOOK_SERVER_ADDRESS"`
+	WebhookAPIKey        string `mapstructure:"WEBHOOK_APIKEY"`
 }
 
 // LoadConfig reads configuration from file or environment variables.
