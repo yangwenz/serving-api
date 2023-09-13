@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: model-serving-service
+  name: serving-api-service
 spec:
   selector:
-    app: model-serving
+    app: serving-api
   ports:
     - name: service
       protocol: TCP

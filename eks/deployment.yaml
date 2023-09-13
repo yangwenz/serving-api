@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: model-serving
+  name: serving-api
   labels:
-    app: model-serving
+    app: serving-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: model-serving
+      app: serving-api
   template:
     metadata:
       labels:
-        app: model-serving
+        app: serving-api
     spec:
       containers:
-        - name: model-serving-container
+        - name: serving-api-container
           image: yangwenz/model-serving:latest
           imagePullPolicy: Always
           ports:
@@ -29,7 +29,7 @@ spec:
             - name: REDIS_ADDRESS
               value: "redis-master:6379"
             - name: WEBHOOK_SERVER_ADDRESS
-              value: "model-webhook-service.default.svc.cluster.local:12000"
+              value: "serving-webhook-service.default.svc.cluster.local:12000"
           livenessProbe:
             httpGet:
               path: /live
