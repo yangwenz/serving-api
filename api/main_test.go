@@ -1,23 +1,19 @@
 package api
 
 import (
+	"github.com/HyperGAI/serving-api/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
-	"github.com/yangwenz/model-serving/platform"
-	"github.com/yangwenz/model-serving/utils"
-	"github.com/yangwenz/model-serving/worker"
 	"os"
 	"testing"
 )
 
 func newTestServer(
 	t *testing.T,
-	platform platform.Platform,
-	distributor worker.TaskDistributor,
-	webhook platform.Webhook,
+	webhook Webhook,
 ) *Server {
 	config := utils.Config{}
-	server, err := NewServer(config, platform, distributor, webhook)
+	server, err := NewServer(config, webhook)
 	require.NoError(t, err)
 	return server
 }

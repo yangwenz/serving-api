@@ -1,16 +1,20 @@
 package main
 
 import (
+	"context"
+	"github.com/HyperGAI/serving-api/api"
+	"github.com/HyperGAI/serving-api/utils"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"github.com/yangwenz/model-serving/api"
-	"github.com/yangwenz/model-serving/platform"
-	"github.com/yangwenz/model-serving/utils"
-	"github.com/yangwenz/model-serving/worker"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
 func main() {
+	utils.InitZerolog()
 	config, err := utils.LoadConfig(".")
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot load config")
@@ -18,42 +22,49 @@ func main() {
 	if config.Environment == "development" {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
-
-	// Initialize ML platform service
-	service := platform.NewKServe(config)
-	webhook := platform.NewInternalWebhook(config)
-	// Start task processor
-	go runTaskProcessor(config, service, webhook)
-	// Run task distributor
-	distributor := worker.NewRedisTaskDistributor(config)
-	// Start model API server
-	runGinServer(config, service, distributor, webhook)
+	webhook := api.NewInternalWebhook(config)
+	runGinServer(config, webhook)
 }
 
 func runGinServer(
 	config utils.Config,
-	platform platform.Platform,
-	distributor worker.TaskDistributor,
-	webhook platform.Webhook,
+	webhook api.Webhook,
 ) {
-	server, err := api.NewServer(config, platform, distributor, webhook)
+	server, err := api.NewServer(config, webhook)
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot create server")
 	}
-	err = server.Start(config.HTTPServerAddress)
-	if err != nil {
-		log.Fatal().Err(err).Msg("cannot start server")
+	/*
+		err = server.Start(config.HTTPServerAddress)
+		if err != nil {
+			log.Fatal().Err(err).Msg("cannot start server")
+		}
+	*/
+	httpServer := &http.Server{
+		Addr:    config.HTTPServerAddress,
+		Handler: server.Handler(),
 	}
-}
+	go func() {
+		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatal().Err(err).Msg("cannot start server")
+		}
+	}()
 
-func runTaskProcessor(config utils.Config, platform platform.Platform, webhook platform.Webhook) {
-	if config.RedisAddress == "" {
-		log.Fatal().Msg("redis address is not set")
+	// https://gin-gonic.com/docs/examples/graceful-restart-or-stop/
+	quit := make(chan os.Signal)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Info().Msg("Shutdown Server ...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := httpServer.Shutdown(ctx); err != nil {
+		log.Fatal().Err(err).Msg("server shutdown")
 	}
-	taskProcessor := worker.NewRedisTaskProcessor(config, platform, webhook)
-	log.Info().Msg("start task processor")
-	err := taskProcessor.Start()
-	if err != nil {
-		log.Fatal().Err(err).Msg("failed to start task processor")
+	// catching ctx.Done(). timeout of 5 seconds.
+	select {
+	case <-ctx.Done():
+		log.Info().Msg("timeout of 5 seconds")
 	}
+	log.Info().Msg("server exiting")
 }

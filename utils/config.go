@@ -9,14 +9,14 @@ import (
 type Config struct {
 	Environment          string `mapstructure:"ENVIRONMENT"`
 	HTTPServerAddress    string `mapstructure:"HTTP_SERVER_ADDRESS"`
-	KServeAddress        string `mapstructure:"KSERVE_ADDRESS"`
-	KServeCustomDomain   string `mapstructure:"KSERVE_CUSTOM_DOMAIN"`
-	KServeNamespace      string `mapstructure:"KSERVE_NAMESPACE"`
-	KServeRequestTimeout int    `mapstructure:"KSERVE_REQUEST_TIMEOUT"`
-	RedisAddress         string `mapstructure:"REDIS_ADDRESS"`
-	WorkerConcurrency    int    `mapstructure:"WORKER_CONCURRENCY"`
+	ServingAgentAddress  string `mapstructure:"SERVING_AGENT_ADDRESS"`
 	WebhookServerAddress string `mapstructure:"WEBHOOK_SERVER_ADDRESS"`
 	WebhookAPIKey        string `mapstructure:"WEBHOOK_APIKEY"`
+	// For rate limiter
+	RedisAddress       string `mapstructure:"REDIS_ADDRESS"`
+	FormattedRateSync  string `mapstructure:"FORMATTED_RATE_SYNC"`
+	FormattedRateAsync string `mapstructure:"FORMATTED_RATE_ASYNC"`
+	FormattedRateTask  string `mapstructure:"FORMATTED_RATE_TASK"`
 }
 
 // LoadConfig reads configuration from file or environment variables.

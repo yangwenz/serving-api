@@ -16,29 +16,35 @@ spec:
     spec:
       containers:
         - name: serving-api-container
-          image: yangwenz/model-serving:latest
+          image: asia-southeast1-docker.pkg.dev/hybrid-autonomy-401202/ml-platform/serving-api:v1.1.5
           imagePullPolicy: Always
           ports:
             - name: service
-              containerPort: 8000
+              containerPort: 8001
           env:
+            - name: ENVIRONMENT
+              value: PRODUCTION
             - name: GIN_MODE
               value: release
-            - name: KSERVE_ADDRESS
-              value: "istio-ingressgateway-internal.istio-system.svc.cluster.local"
-            - name: REDIS_ADDRESS
-              value: "redis-master:6379"
+            - name: SERVING_AGENT_ADDRESS
+              value: "http://agent-service-{MODEL-NAME}.default.svc.cluster.local:8000"
             - name: WEBHOOK_SERVER_ADDRESS
               value: "serving-webhook-service.default.svc.cluster.local:12000"
+            - name: REDIS_ADDRESS
+              value: "10.33.96.68:6379"
+          resources:
+            limits:
+              cpu: "4"
+              memory: "1Gi"
           livenessProbe:
             httpGet:
               path: /live
-              port: 8000
+              port: 8001
             initialDelaySeconds: 5
             periodSeconds: 20
           readinessProbe:
             httpGet:
               path: /ready
-              port: 8000
+              port: 8001
             initialDelaySeconds: 5
             periodSeconds: 20

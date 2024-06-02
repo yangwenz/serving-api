@@ -1,0 +1,12 @@
+apiVersion: monitoring.googleapis.com/v1
+kind: PodMonitoring
+metadata:
+  name: prom-serving-api
+spec:
+  selector:
+    matchLabels:
+      app: serving-api
+  endpoints:
+    - port: 8001
+      path: "/metrics"
+      interval: 30s
