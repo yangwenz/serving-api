@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: serving-api-container
-          image: asia-southeast1-docker.pkg.dev/hybrid-autonomy-401202/ml-platform/serving-api:v1.1.5
+          image: asia-southeast1-docker.pkg.dev/hybrid-autonomy-401202/ml-platform/serving-api:v1.1.6
           imagePullPolicy: Always
           ports:
             - name: service

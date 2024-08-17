@@ -40,6 +40,7 @@ func (server *Server) setupRouter() {
 	syncRoutes.Use(rateLimitByUser(server.config, server.config.FormattedRateSync, "sync_predict"))
 	syncRoutes.Use(prometheusMiddleware())
 	syncRoutes.POST("/predict", server.predict)
+	syncRoutes.POST("/generate", server.generate)
 
 	asyncRoutes := router.Group("/async/v1")
 	asyncRoutes.Use(traceRequest())
